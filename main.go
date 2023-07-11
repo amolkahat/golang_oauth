@@ -5,16 +5,21 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/amolkahat/golang_oauth/base"
+	"github.com/amolkahat/golang_oauth/controllers"
+	"github.com/joho/godotenv"
 )
 
 func main() {
 
 	// Create simple server and run
 
+	err := godotenv.Load("./.env")
+	if err != nil {
+		log.Fatal("Error loading .env file.")
+	}
 	server := http.Server{
 		Addr:    fmt.Sprintf(":8000"),
-		Handler: base.New(),
+		Handler: controllers.New(),
 	}
 
 	log.Printf("Starting server. Listening at %q", server.Addr)
