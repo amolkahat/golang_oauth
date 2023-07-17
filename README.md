@@ -1,2 +1,2 @@
-# golang_oauth
-Golang oauth examples
+# Golang code snippets
+Golang code snippets
