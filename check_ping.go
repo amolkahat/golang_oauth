@@ -11,40 +11,33 @@ import (
 type Result struct {
 	ip   string
 	ping bool
-	ssh  bool
-	vlan bool
 }
 
 func main() {
-    T := make(chan bool)
-	ips := []*Result{{"192.168.0.2", false, false, false}, {"127.0.0.1", false, false, false}}
+    T := make(chan Result)
+	ips := []*Result{{"192.168.0.2", false}, {"127.0.0.1", false}}
 	for _, i := range ips {
 		go i.check_ping(T)
 	}
 	for _, i := range ips {
         x := <- T
-		if x {
-			fmt.Printf("Able to connect: %s\n", i.ip)
+        fmt.Println(i)
+		if x.ping {
+			fmt.Printf("Able to connect: %s\n", x.ip)
 		} else {
-			fmt.Printf("Not able to connect: %s\n", i.ip)
+			fmt.Printf("Not able to connect: %s\n", x.ip)
 		}
 	}
 }
 
-func (res *Result) check_ping(t chan bool) {
+func (res *Result) check_ping(t chan Result) {
 	fmt.Printf("Pinging :%s \n", res.ip)
 	command := fmt.Sprintf("ping -c 3 %s > /dev/null && echo true || echo false", res.ip)
-	fmt.Println(command)
 	output, _ := exec.Command("/bin/bash", "-c", command).Output()
 	val, _ := strconv.ParseBool(strings.TrimSpace(string(output)))
-    fmt.Println(val)
 	if val {
-		res.ping = true
-        t <- true
-		fmt.Printf("Set ping to true\n")
+        t <- Result{res.ip, true}
 	} else {
-		fmt.Printf("Set ping to false\n")
-        t <- false
-		res.ping = false
+        t <- Result{res.ip, false}
 	}
 }
